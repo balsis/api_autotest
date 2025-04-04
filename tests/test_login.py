@@ -1,9 +1,7 @@
 import requests
 
+from helpers.data import base_url
 from helpers.validate import json_schema_validate
-
-
-base_url = "https://reqres.in/api"
 
 
 def test_successful_login():
