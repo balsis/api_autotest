@@ -1,3 +1,4 @@
+import pytest
 import requests
 
 from helpers.data import base_url
@@ -20,15 +21,14 @@ def test_successful_login():
     json_schema_validate(response, schema_name = 'login')
 
 
-def test_unsuccessful_login_without_password():
+@pytest.mark.parametrize("payload, expected_error", [
+    ({"email": "epeter@klaven"}, "Missing password"),
+    ({"password": "pistol"}, "Missing email or username")
+])
+def test_unsuccessful_login(payload, expected_error):
     url = f'{base_url}/login'
-    email = 'epeter@klaven'
-
-    payload = {
-        'email': email,
-    }
-
     response = requests.post(url, json = payload)
     response_body = response.json()
+
     assert response.status_code == 400
-    assert response_body['error'] == "Missing password"
+    assert response_body["error"] == expected_error

@@ -1,3 +1,4 @@
+import pytest
 import requests
 
 from helpers.data import base_url
@@ -15,20 +16,19 @@ def test_successful_register():
     }
 
     response = requests.post(url, json = payload)
-
+    print(response.json())
     assert response.status_code == 200
     json_schema_validate(response, schema_name = 'register')
 
 
-def test_unsuccessful_register_without_password():
+@pytest.mark.parametrize("payload, expected_error", [
+    ({"email": "eve.holt@reqres.in"}, "Missing password"),
+    ({"password": "pistol"}, "Missing email or username")
+])
+def test_unsuccessful_register(payload, expected_error):
     url = f'{base_url}/register'
-    email = 'eve.holt@reqres.in'
-
-    payload = {
-        'email': email,
-    }
 
     response = requests.post(url, json = payload)
     response_body = response.json()
     assert response.status_code == 400
-    assert response_body['error'] == "Missing password"
+    assert response_body["error"] == expected_error
